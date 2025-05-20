@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro Espacial</title>
+    <style>
+        /* Estilos generales para el cuerpo de la página */
+        body {
+            background-color: black;
+            /* Fondo negro */
+            color: white;
+            /* Texto blanco */
+            display: flex;
+            /* Usar flexbox para centrar contenido */
+            justify-content: center;
+            /* Centrar horizontalmente */
+            align-items: center;
+            /* Centrar verticalmente */
+            height: 100vh;
+            /* Ocupar el 100% de la altura de la ventana */
+            overflow: hidden;
+            /* Ocultar desbordamiento */
+            font-family: Arial, sans-serif;
+            /* Fuente por defecto */
+            position: relative;
+            /* Posicionamiento relativo para elementos internos */
+            cursor: none;
+            /* Ocultar cursor por defecto */
+            font-family: 'Pixeled';
+            /* Fuente personalizada */
+        }
+
+        /* Estilo para el cursor personalizado */
+        .custom-cursor {
+            position: absolute;
+            /* Posicionamiento absoluto */
+            width: 20px;
+            /* Ancho del cursor */
+            height: 20px;
+            /* Alto del cursor */
+            background: white;
+            /* Color blanco */
+            clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
+            /* Forma de estrella */
+            filter: drop-shadow(0 0 5px white);
+            /* Sombra blanca */
+            pointer-events: none;
+            /* No interactúa con eventos del ratón */
+            transition: transform 0.1s, opacity 0.2s;
+            /* Transiciones suaves */
+        }
+
+        /* Estilo para la estela del cursor */
+        .custom-cursor.trail {
+            opacity: 0.5;
+            /* Semi-transparente */
+            transform: scale(0.6);
+            /* Más pequeño */
+            transition: opacity 0.5s linear;
+            /* Transición de opacidad lineal */
+        }
+
+        /* Estilo para la imagen de fondo */
+        .background {
+            position: absolute;
+            /* Posicionamiento absoluto */
+            width: 100%;
+            /* Ancho completo */
+            height: 100%;
+            /* Alto completo */
+            background: url('space-bg.jpg') no-repeat center center/cover;
+            /* Imagen de fondo */
+            opacity: 0.3;
+            /* Semi-transparente */
+            z-index: -1;
+            /* Detrás de otros elementos */
+        }
+
+        /* Definición de la fuente personalizada */
+        @font-face {
+            font-family: 'Pixeled';
+            src: url(Pixeled.ttf) format('truetype');
+            /* Ruta al archivo de fuente */
+            font-weight: normal;
+            font-style: normal;
+        }
+
+        /* Estilo para las estrellas que caen */
+        .star {
+            position: absolute;
+            /* Posicionamiento absoluto */
+            width: 5%;
+            /* Ancho relativo */
+            height: 5%;
+            /* Alto relativo */
+            background: white;
+            /* Color blanco */
+            clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
+            /* Forma de estrella */
+            filter: drop-shadow(0 0 5px white);
+            /* Sombra blanca */
+            animation: fall linear infinite;
+            /* Animación de caída infinita */
+            top: -20px;
+            /* Empieza fuera de la vista */
+        }
+
+        /* Animación de caída para las estrellas */
+        @keyframes fall {
+            from {
+                transform: translateY(0vh);
+                /* Posición inicial */
+                opacity: 1;
+                /* Completamente visible */
+            }
+
+            to {
+                transform: translateY(100vh);
+                /* Cae hasta abajo */
+                opacity: 0;
+                /* Se vuelve transparente */
+            }
+        }
+
+        /* Estilo para la tarjeta principal (formulario) */
+        .card {
+            background: rgba(30, 30, 30, 0.9);
+            /* Fondo oscuro semi-transparente */
+            padding: 20px;
+            /* Espaciado interno */
+            border-radius: 10px;
+            /* Bordes redondeados */
+            text-align: center;
+            /* Texto centrado */
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.2);
+            /* Sombra */
+            border: 1px solid #444;
+            /* Borde */
+            width: 300px;
+            /* Ancho fijo */
+            position: relative;
+            /* Posicionamiento relativo */
+            z-index: 1;
+            /* Por encima del fondo */
+        }
+
+        /* Estilo para inputs y botones */
+        input,
+        button {
+            width: 90%;
+            /* Ancho relativo */
+            padding: 10px;
+            /* Espaciado interno */
+            margin: 10px 0;
+            /* Margen superior e inferior */
+            border-radius: 5px;
+            /* Bordes redondeados */
+            border: none;
+            /* Sin borde */
+            font-size: 16px;
+            /* Tamaño de fuente */
+            font-family: 'Pixeled';
+            /* Fuente personalizada */
+        }
+
+        /* Estilo específico para inputs */
+        input {
+            background: #222;
+            /* Fondo oscuro */
+            color: white;
+            /* Texto blanco */
+            border: 1px solid #555;
+            /* Borde */
+            font-family: 'Pixeled';
+            /* Fuente personalizada */
+        }
+
+        /* Estilo específico para botones */
+        button {
+            background: #007bff;
+            /* Fondo azul */
+            color: white;
+            /* Texto blanco */
+            cursor: pointer;
+            /* Cursor de mano */
+            font-weight: bold;
+            /* Texto en negrita */
+        }
+
+        /* Estilo al pasar el ratón por encima de los botones */
+        button:hover {
+            background: #0056b3;
+            /* Fondo azul más oscuro */
+        }
+
+        /* Estilo para los botones pequeños (modificar, eliminar) */
+        .small-button {
+            width: 80%;
+            /* Ancho relativo */
+            padding: 8px;
+            /* Espaciado interno */
+            margin: 5px auto;
+            /* Margen y centrado */
+            font-size: 14px;
+            /* Tamaño de fuente más pequeño */
+            background-color: #28a745;
+            /* Verde para modificar */
+        }
+
+        /* Estilo específico para el último botón pequeño (eliminar) */
+        .small-button:last-of-type {
+            background-color: #dc3545;
+            /* Rojo para eliminar */
+        }
+
+        /* Estilo al pasar el ratón por encima de los botones pequeños */
+        .small-button:hover {
+            opacity: 0.85;
+            /* Ligeramente transparente */
+        }
+
+        /* Estilo para el modo edición (cuerpo) */
+        body.edicion {
+            background-color: white;
+            /* Fondo blanco */
+            color: black;
+            /* Texto negro */
+        }
+
+        /* Estilo para el modo edición (tarjeta) */
+        body.edicion .card {
+            background-color: #4da6ff;
+            /* Azul claro */
+            color: white;
+            /* Texto blanco */
+        }
+
+        /* Estilo para el modo edición (inputs) */
+        body.edicion input {
+            background: #e6f2ff;
+            /* Fondo muy claro */
+            color: black;
+            /* Texto negro */
+            border: 1px solid #3399ff;
+            /* Borde azul */
+        }
+
+        /* Estilo para el modo edición (botones) */
+        body.edicion button {
+            background-color: #0056b3;
+            /* Fondo azul oscuro */
+            color: white;
+            /* Texto blanco */
+        }
+
+        /* Estilo para el modo edición (estrellas) */
+        body.edicion .star {
+            background: black;
+            /* Estrellas negras */
+            filter: drop-shadow(0 0 5px black);
+            /* Sombra negra */
+        }
+
+        /* Estilo para el modo edición (cursor) */
+        body.edicion .custom-cursor {
+            background: black;
+            /* Cursor negro */
+            filter: drop-shadow(0 0 5px black);
+            /* Sombra negra */
+        }
+
+        /* Modo eliminación (cuerpo) */
+        body.eliminacion {
+            background-color: #ffe6e6;
+            /* Fondo rojo muy claro */
+            color: black;
+            /* Texto negro */
+        }
+
+        /* Modo eliminación (tarjeta) */
+        body.eliminacion .card {
+            background-color: #ff4d4d;
+            /* Rojo */
+            color: white;
+            /* Texto blanco */
+        }
+
+        /* Modo eliminación (inputs) */
+        body.eliminacion input {
+            background: #ffd6d6;
+            /* Fondo rojo claro */
+            color: black;
+            /* Texto negro */
+            border: 1px solid #ff9999;
+            /* Borde rojo */
+        }
+
+        /* Modo eliminación (botones) */
+        body.eliminacion button {
+            background-color: #cc0000;
+            /* Rojo oscuro */
+            color: white;
+            /* Texto blanco */
+        }
+
+        /* Estrellas negras en modo eliminación */
+        body.eliminacion .star {
+            background: black;
+            /* Estrellas negras */
+            filter: drop-shadow(0 0 5px black);
+            /* Sombra negra */
+        }
+
+        /* Cursor negro en modo eliminación */
+        body.eliminacion .custom-cursor {
+            background: black;
+            /* Cursor negro */
+            filter: drop-shadow(0 0 5px black);
+            /* Sombra negra */
+        }
+
+        /* Estilo para los mensajes de error que caen */
+        .error-message {
+            position: absolute;
+            /* Posicionamiento absoluto */
+            width: 100%;
+            /* Ancho completo */
+            color: red;
+            /* Color rojo */
+            font-size: 18px;
+            /* Tamaño de fuente */
+            font-family: 'Pixeled';
+            /* Fuente personalizada */
+            opacity: 1;
+            /* Completamente visible */
+            text-align: center;
+            /* Texto centrado */
+            z-index: 10;
+            /* Por encima de otros elementos */
+            animation: fall 5s linear infinite;
+            /* Animación de caída */
+        }
+
+        /* La animación de caída para los mensajes de error es la misma que la de las estrellas */
+        /* @keyframes fall se define más arriba */
+    </style>
+</head>
+
+<body>
+    <div class="background"></div>
+    <div id="cursor" class="custom-cursor"></div>
+    <div id="stars-container"></div>
+    <div class="card">
+        <h2 id="titulo">🚀 Wild Space 🚀</h2>
+        <p id="mensajeExtra" style="margin-top: -5px;"></p>
+
+        <form id="formulario" action="http://localhost:8080/procesar.php" method="POST">
+
+            <input type="text" name="nombre" placeholder="Nombre de usuario" required>
+            <input type="email" name="email" placeholder="Correo electronico" required>
+            <input type="password" name="contraseña" placeholder="Contraseña" required>
+            <input type="password" name="confirmcontraseña" placeholder="Confirmar contraseña" required>
+            <button type="submit">Registrarse</button>
+        </form>
+
+        <button id="modificarBtn" class="small-button">Modificar datos</button>
+        <button id="eliminarBtn" class="small-button">Eliminar cuenta</button>
+
+        <p id="error" style="color: red;"></p>
+    </div>
+
+    <script>
+        // Script para el cursor personalizado y la estela
+        document.addEventListener("mousemove", function (event) {
+            const cursor = document.getElementById("cursor");
+            // Actualizar posición del cursor
+            cursor.style.left = event.clientX + "px";
+            cursor.style.top = event.clientY + "px";
+
+            // Crear un elemento para la estela
+            const trail = document.createElement("div");
+            trail.classList.add("custom-cursor", "trail");
+            // Posicionar la estela
+            trail.style.left = event.clientX + "px";
+            trail.style.top = event.clientY + "px";
+            // Añadir la estela al cuerpo del documento
+            document.body.appendChild(trail);
+
+            // Hacer que la estela se desvanezca
+            setTimeout(() => {
+                trail.style.opacity = "0";
+            }, 500);
+
+            // Eliminar la estela después de que se desvanezca
+            setTimeout(() => {
+                trail.remove();
+            }, 1000);
+        });
+
+        // Función para crear una estrella que cae
+        function createStar() {
+            const star = document.createElement("div");
+            star.classList.add("star");
+            // Posición horizontal aleatoria
+            star.style.left = Math.random() * window.innerWidth + "px";
+            // Duración de la animación aleatoria
+            star.style.animationDuration = Math.random() * 3 + 2 + "s";
+            star.style.top = "-20px"; // Empieza fuera de la vista
+            // Añadir la estrella al cuerpo del documento
+            document.body.appendChild(star);
+
+            // Eliminar la estrella después de que termine la animación
+            setTimeout(() => {
+                star.remove();
+            }, 5000);
+        }
+
+        // Crear estrellas a intervalos regulares
+        setInterval(createStar, 200);
+
+        // Obtener referencias a elementos del DOM
+        const formulario = document.getElementById("formulario");
+        const modificarBtn = document.getElementById("modificarBtn");
+        const eliminarBtn = document.getElementById("eliminarBtn");
+
+        // Guardar el HTML y la acción original del formulario
+        const formularioOriginalHTML = formulario.innerHTML;
+        const formularioOriginalAction = formulario.getAttribute("action");
+
+        // Variables para controlar los modos
+        let modoModificacion = false;
+        let modoEliminacion = false;
+        let lluviaIntervalo = null; // Para controlar la lluvia de mensajes de error
+
+        // Función para crear un mensaje de error que cae
+        function crearMensajeError() {
+            const mensaje = document.createElement("div");
+            mensaje.classList.add("error-message");
+
+            // Mensajes de error aleatorios (incluye calavera)
+            const mensajes = [
+                "¡Oops! Algo salió mal.",
+                "Error: No se pudo procesar la solicitud.",
+                "¡Advertencia! No se pudo eliminar la cuenta.",
+                "Error de servidor. Intenta más tarde.",
+                "¡Alerta! La contraseña no coincide.",
+                "💀", // Icono de calavera
+                "¡Oh no! Algo impidió realizar la acción."
+            ];
+
+            // Seleccionar mensaje aleatorio
+            mensaje.textContent = mensajes[Math.floor(Math.random() * mensajes.length)];
+
+            // Agregar al DOM *antes* de calcular su tamaño para obtener offsetWidth
+            document.body.appendChild(mensaje);
+
+            // Calcular posición horizontal aleatoria centrada
+            const mensajeAncho = mensaje.offsetWidth;
+            const maxX = window.innerWidth - mensajeAncho;
+            const posicionX = Math.random() * maxX;
+
+            mensaje.style.left = `${posicionX}px`;
+
+            // Eliminar después de caer
+            setTimeout(() => {
+                mensaje.remove();
+            }, 5000);
+        }
+
+
+        // Evento para el botón "Modificar datos"
+        // Evento para el botón "Modificar datos"
+        modificarBtn.addEventListener("click", function () {
+            const mensajeExtra = document.getElementById("mensajeExtra");
+
+            if (!modoModificacion) {
+                // Salir del modo eliminación si estaba activo
+                if (modoEliminacion) {
+                    document.body.classList.remove("eliminacion");
+                    formulario.setAttribute("action", formularioOriginalAction);
+                    formulario.innerHTML = formularioOriginalHTML;
+                    eliminarBtn.textContent = "Eliminar cuenta";
+                    modoEliminacion = false;
+                    clearInterval(lluviaIntervalo);
+                    lluviaIntervalo = null;
+                    document.querySelectorAll('.error-message').forEach(e => e.remove());
+                }
+
+                formulario.setAttribute("action", "http://localhost:8080/modificar_usuario.php");
+                formulario.innerHTML = `
+            <input type="text" name="nuevo_nombre" placeholder="Nuevo nombre de usuario" required>
+            <input type="email" name="nuevo_email" placeholder="Ingresa tu correo" required>
+            <input type="password" name="nueva_contraseña" placeholder="Nueva contraseña">
+            <input type="password" name="confirmar_nueva_contraseña" placeholder="Confirmar contraseña">
+            <button type="submit">Modificar Cuenta</button>
+        `;
+
+                document.body.classList.add("edicion");
+                modificarBtn.textContent = "Volver";
+                modoModificacion = true;
+
+                // ✅ Mostrar mensaje extra
+                mensajeExtra.textContent = "✨ Estás modificando tu cuenta ✨";
+            } else {
+                formulario.setAttribute("action", formularioOriginalAction);
+                formulario.innerHTML = formularioOriginalHTML;
+                document.body.classList.remove("edicion");
+                modificarBtn.textContent = "Modificar datos";
+                modoModificacion = false;
+
+                // ✅ Ocultar mensaje extra
+                mensajeExtra.textContent = "";
+            }
+        });
+
+
+        // Evento para el botón "Eliminar cuenta"
+        eliminarBtn.addEventListener("click", function () {
+            if (!modoEliminacion) {
+                // Si estamos en modo modificación, salir de él primero
+                if (modoModificacion) {
+                    document.body.classList.remove("edicion");
+                    formulario.setAttribute("action", formularioOriginalAction);
+                    formulario.innerHTML = formularioOriginalHTML;
+                    modificarBtn.textContent = "Modificar datos";
+                    modoModificacion = false;
+                }
+
+                // Entrar en modo eliminación
+                // Cambiar la acción del formulario para apuntar al script de eliminación
+                // IMPORTANTE: Asegúrate de que esta ruta sea correcta en tu servidor local
+                formulario.setAttribute("action", "http://localhost:8080/eliminar_usuario.php");
+                // Cambiar el contenido del formulario para la confirmación de eliminación
+                formulario.innerHTML = `
+            <p>⚠️ ¿Estás seguro de que quieres eliminar tu cuenta? ⚠️</p>
+            <input type="email" name="email" placeholder="Correo electrónico" required>
+            <input type="password" name="contraseña" placeholder="Contraseña" required>
+            <button type="submit">Confirmar eliminación</button>
+        `;
+                // Añadir clase al cuerpo para aplicar estilos de eliminación
+                document.body.classList.add("eliminacion");
+                // Cambiar el texto del botón a "Volver"
+                eliminarBtn.textContent = "Volver";
+                modoEliminacion = true;
+
+                // Iniciar lluvia de mensajes de error
+                lluviaIntervalo = setInterval(crearMensajeError, 1000);
+            } else {
+                // Salir del modo eliminación
+                // Restaurar la acción y el contenido original del formulario
+                formulario.setAttribute("action", formularioOriginalAction);
+                formulario.innerHTML = formularioOriginalHTML;
+                // Eliminar la clase de eliminación del cuerpo
+                document.body.classList.remove("eliminacion");
+                // Restaurar el texto del botón
+                eliminarBtn.textContent = "Eliminar cuenta";
+                modoEliminacion = false;
+
+                // Detener lluvia
+                clearInterval(lluviaIntervalo);
+                lluviaIntervalo = null;
+
+                // Quitar mensajes visibles que puedan haber quedado
+                document.querySelectorAll('.error-message').forEach(e => e.remove());
+            }
+        });
+    </script>
+</body>
+
+</html>
